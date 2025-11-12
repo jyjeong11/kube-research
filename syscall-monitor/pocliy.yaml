@@ -1,0 +1,8 @@
+ingress:
+- from:
+  - podSelector:
+      matchLabels:
+        app: poda
+  - ports:
+    - protocol: TCP
+      port: 8080

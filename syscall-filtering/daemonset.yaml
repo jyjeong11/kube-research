@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: connect-filter
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: connect-filter
+  template:
+    metadata:
+      labels:
+        app: connect-filter
+    spec:
+      hostPID: true                   # PID 네임스페이스 공유
+      serviceAccountName: connect-filter-sa
+      containers:
+      - name: filter
+        image: jjyoung22/connect-filter:2.0   # 너가 빌드한 이미지
+        securityContext:
+          privileged: true             # eBPF attach 위해 필요
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: bpffs
+          mountPath: /sys/fs/bpf
+        - name: cgroup
+          mountPath: /sys/fs/cgroup
+        - name: proc
+          mountPath: /proc
+      volumes:
+      - name: bpffs
+        hostPath:
+          path: /sys/fs/bpf
+      - name: cgroup
+        hostPath:
+          path: /sys/fs/cgroup
+      - name: proc
+        hostPath:
+          path: /proc
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: connect-filter-sa
+  namespace: default
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: connect-filter-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: connect-filter-bind
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: connect-filter-role
+subjects:
+- kind: ServiceAccount
+  name: connect-filter-sa
+  namespace: default

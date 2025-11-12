@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: syscall-monitor
+spec:
+  selector:
+    matchLabels:
+      app: syscall-monitor
+  template:
+    metadata:
+      labels:
+        app: syscall-monitor
+    spec:
+      hostPID: true
+      containers:
+      - name: monitor
+        image: jjyoung22/syscall-monitor:1.0
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c", "echo '[+] Loading LSM BPF' && bpftool prog load /app/policy.o /sys/fs/bpf/policy type lsm && echo '[+] Done' && sleep infinity"]
+        volumeMounts:
+        - name: bpftool
+          mountPath: /usr/local/bin/bpftool
+          readOnly: true
+        - name: bpffs
+          mountPath: /sys/fs/bpf
+        - name: cgroup
+          mountPath: /sys/fs/cgroup
+      volumes:
+      - name: bpftool
+        hostPath:
+          path: /usr/lib/linux-tools-6.8.0-86/bpftool   # 실제 host 경로
+          type: File
+      - name: bpffs
+        hostPath:
+          path: /sys/fs/bpf
+          type: Directory
+      - name: cgroup
+        hostPath:
+          path: /sys/fs/cgroup
+          type: Directory

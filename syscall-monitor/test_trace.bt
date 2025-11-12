@@ -1,0 +1,9 @@
+kprobe:__x64_sys_execve
+{
+  printf("[exec] pid=%d comm=%s syscall=execve\n", pid, comm);
+}
+
+kprobe:__x64_sys_execveat
+{
+  printf("[exec] pid=%d comm=%s syscall=execveat\n", pid, comm);
+}
