@@ -1,13 +1,16 @@
-BPF_CLANG  ?= clang
-BPF_CFLAGS ?= -O2 -g -Wall -target bpf \
-              -D__TARGET_ARCH_x86 \
-              -I/usr/include \
-              -I/usr/include/x86_64-linux-gnu
+# Makefile for building eBPF programs
 
-all: filter_connect_cgroup.o
+CLANG ?= clang
+BPF_TARGET := bpf
+CFLAGS := -O2 -g -Wall -target $(BPF_TARGET)
 
-filter_connect_cgroup.o: filter_connect_cgroup.c
-	$(BPF_CLANG) $(BPF_CFLAGS) -c $< -o $@
+SRC := deny_connect.c
+OBJ := $(SRC:.c=.o)
+
+all: $(OBJ)
+
+%.o: %.c
+	$(CLANG) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o
+	rm -f $(OBJ)

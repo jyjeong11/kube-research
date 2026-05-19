@@ -1,44 +1,45 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: syscall-filter
+  name: filter
 spec:
   selector:
     matchLabels:
-      app: syscall-filter
+      name: filter
   template:
     metadata:
       labels:
-        app: syscall-filter
+        name: filter
     spec:
       hostPID: true
       hostNetwork: true
       containers:
-      - name: syscall-filter
-        image: jjyoung22/syscall-filtering:1.4
+      - name: filter
+        image:  jjyoung22/filtering:1.0
         securityContext:
           privileged: true
           capabilities:
-            add: ["SYS_ADMIN","SYS_RESOURCE","NET_ADMIN","BPF","PERFMON"]
+            add: ["SYS_ADMIN","SYS_RESOURCE","NET_ADMIN","BPF","SYS_PTRACE", "PERFMON"]
         volumeMounts:
-        - name: sys
-          mountPath: /sys
+        - name: bpf
+          mountPath: /sys/fs/bpf
         - name: modules
           mountPath: /lib/modules
         - name: src
           mountPath: /usr/src
-        - name: sysfs
-          mountPath: /sys/fs/cgroup
+        - name: tracefs
+          mountPath: /sys/kernel/debug
+          readOnly: false
       volumes:
-      - name: sys
+      - name: bpf
         hostPath:
-          path: /sys
+          path: /sys/fs/bpf
       - name: modules
         hostPath:
           path: /lib/modules
       - name: src
         hostPath:
           path: /usr/src
-      - name: sysfs
+      - name: tracefs
         hostPath:
-          path: /sys/fs/cgroup
+          path: /sys/kernel/debug

@@ -1,0 +1,23 @@
+{
+  "name": "policies/cloudresourcemanager.googleapis.com%2Forganizations%2F253519172624/denypolicies/testpolicyid",
+  "uid": "06ccd2eb-d2a5-5dd1-a746-eaf4c6g3f816",
+  "kind": "DenyPolicy",
+  "displayName": "Only project admins can delete projects.",
+  "etag": "MTc1MTkzMjY0MjUyMTExODMxMDQ=",
+  "createTime": "2021-09-07T23:15:35.258319Z",
+  "updateTime": "2021-09-07T23:15:35.258319Z",
+  "rules": [
+    {
+      "denyRule": {
+        "deniedPrincipals": [
+          "principalSet://goog/public:all"
+        ],
+        "deniedPermissions": [
+          "iap.googleapis.com/iap.organizations.getSettings",
+          "iap.googleapis.com/iap.folders.getSettings",
+          ...
+        ],
+      }
+    }
+  ]
+}
